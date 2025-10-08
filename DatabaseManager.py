@@ -9,41 +9,69 @@ import pandas
 # GOODLUCK :)
 
 class excelManager:
-    def __init__(self,filePath:str,sheetName:str="Sheet1"):
+    def _init_(self,filePath:str,sheetName:str="Sheet1"):
         self.__filePath = filePath
         self.__sheetName = sheetName
         self.__data = pandas.read_excel(filePath,sheet_name=sheetName)
             
     
     def insertData(self,newData:dict,saveChange:bool=False):
-
+        # kerjakan disini
         # clue cara insert row: df = pandas.concat([df, pandas.DataFrame([{"NIM":0,"Nama":"Udin","Nilai":1000}])], ignore_index=True)
+        
+        for col in self.__data.columns:
+            if col not in newData:
+                newData[col] = None
 
-        self.__data = pandas.concat([self.__data, pandas.DataFrame([newData])], ignore_index=True)
-        if (saveChange): self.saveChange()
-    
+        self._data = pandas.concat([self._data, pandas.DataFrame([newData])], ignore_index=True)
+
+        if (saveChange): 
+            self.saveChange()
+
+        
     def deleteData(self, targetedNim:str,saveChange:bool=False):
+        # kerjakan disini
         # clue cara delete row: df.drop(indexBaris, inplace=True); contoh: df.drop(0,inplace=True)
+        
+        row_to_delete = None
+        for i in self.__data.index:
+            if str(self.__data.at[i, "NIM"]) == targetedNim:
+                row_to_delete = i
+                break
+        
+        if row_to_delete is not None:
+            self.__data.drop(row_to_delete, inplace=True)
+            self.__data.reset_index(drop=True, inplace=True)
 
-        indices = self.__data.index[self.__data['NIM'] == targetedNim].tolist()
-        if indices:
-            self.__data.drop(indices[0], inplace=True)
-
-        if (saveChange): self.saveChange()
+            if saveChange:
+                self.saveChange()
+        else:
+            pass
     
     def editData(self, targetedNim:str, newData:dict,saveChange:bool=False) -> dict:
+        # kerjakan disini
         # clue cara ganti value: df.at[indexBaris,namaKolom] = value; contoh: df.at[0,ID] = 1
-        indices = self.__data.index[self.__data['NIM'] == targetedNim].tolist()
-        if not indices:
+        row_to_edit = None
+        for i in self.__data.index:
+            if str(self.__data.at[i, "NIM"]) == targetedNim:
+                row_to_edit = i
+                break
+
+        if row_to_edit is not None:
+            for key, value in newData.items():
+                if key in self.__data.columns:
+                    self.__data.at[row_to_edit, key] = value
+            
+            if saveChange:
+                self.saveChange()
+            
+            resultDict = {}
+            for col in self.__data.columns:
+                resultDict[col] = str(self.__data.at[row_to_edit, col])
+            resultDict["Row"] = row_to_edit
+            return resultDict
+        else:
             return None
-        index = indices[0]
-        for key, value in newData.items():
-            self.__data.at[index, key] = value
-        columns = self.__data.columns
-        resultDict = {str(col): str(self.__data.at[index, col]) for col in columns}
-        resultDict["Row"] = index
-        if (saveChange): self.saveChange()
-        return resultDict
     
                     
     def getData(self, colName:str, data:str) -> dict:
@@ -72,7 +100,7 @@ class excelManager:
         return None
     
     def saveChange(self):
-        self.__data.to_excel(self.__filePath, sheet_name=self.__sheetName , index=False)
+        self._data.to_excel(self.filePath, sheet_name=self._sheetName , index=False)
     
     def getDataFrame(self):
-        return self.__data
+        return self.__data
