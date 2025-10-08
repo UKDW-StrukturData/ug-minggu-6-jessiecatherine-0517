@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from DatabaseManager import excelManager
 
 
@@ -59,19 +58,13 @@ else:
     filter = st.text_input("Filter Nilai") # input angka filter
 
 if (filter != ""):
-    try:
-        filter_val = int(filter)
-        df = em.getDataFrame()
-        col = pd.to_numeric(df[targetFilterColumn], errors='coerce')
-        if (filterSelectBox == ">"):
-            st.table(df[col > filter_val])
-        elif (filterSelectBox == "<"):
-            st.table(df[col < filter_val])
-        elif (filterSelectBox == "="):
-            st.table(df[col == filter_val])
-        elif (filterSelectBox == "<="):
-            st.table(df[col <= filter_val])
-        elif (filterSelectBox == ">="):
-            st.table(df[col >= filter_val])
-    except ValueError:
-        st.error("Filter value must be a number")
+    if (filterSelectBox == ">"):
+        st.table(em.getDataFrame()[em.getDataFrame()[targetFilterColumn] > int(filter)])
+    elif (filterSelectBox == "<"):
+        st.table(em.getDataFrame()[em.getDataFrame()[targetFilterColumn] < int(filter)])
+    elif (filterSelectBox == "="):
+        st.table(em.getDataFrame()[em.getDataFrame()[targetFilterColumn] == int(filter)])
+    elif (filterSelectBox == ">="):
+        st.table(em.getDataFrame()[em.getDataFrame()[targetFilterColumn] >= int(filter)])
+    elif (filterSelectBox == "<="):
+        st.table(em.getDataFrame()[em.getDataFrame()[targetFilterColumn] <= int(filter)])
