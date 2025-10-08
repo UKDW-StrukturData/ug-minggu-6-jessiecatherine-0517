@@ -16,25 +16,34 @@ class excelManager:
             
     
     def insertData(self,newData:dict,saveChange:bool=False):
-        # kerjakan disini
+
         # clue cara insert row: df = pandas.concat([df, pandas.DataFrame([{"NIM":0,"Nama":"Udin","Nilai":1000}])], ignore_index=True)
-        
+
+        self.__data = pandas.concat([self.__data, pandas.DataFrame([newData])], ignore_index=True)
         if (saveChange): self.saveChange()
-        pass
     
     def deleteData(self, targetedNim:str,saveChange:bool=False):
-        # kerjakan disini
         # clue cara delete row: df.drop(indexBaris, inplace=True); contoh: df.drop(0,inplace=True)
-        
-        
+
+        indices = self.__data.index[self.__data['NIM'] == targetedNim].tolist()
+        if indices:
+            self.__data.drop(indices[0], inplace=True)
+
         if (saveChange): self.saveChange()
-        pass
     
     def editData(self, targetedNim:str, newData:dict,saveChange:bool=False) -> dict:
-        # kerjakan disini
         # clue cara ganti value: df.at[indexBaris,namaKolom] = value; contoh: df.at[0,ID] = 1
+        indices = self.__data.index[self.__data['NIM'] == targetedNim].tolist()
+        if not indices:
+            return None
+        index = indices[0]
+        for key, value in newData.items():
+            self.__data.at[index, key] = value
+        columns = self.__data.columns
+        resultDict = {str(col): str(self.__data.at[index, col]) for col in columns}
+        resultDict["Row"] = index
         if (saveChange): self.saveChange()
-        pass
+        return resultDict
     
                     
     def getData(self, colName:str, data:str) -> dict:
